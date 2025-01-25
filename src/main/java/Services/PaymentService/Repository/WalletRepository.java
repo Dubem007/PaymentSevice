@@ -1,6 +1,8 @@
 package Services.PaymentService.Repository;
 
 import Services.PaymentService.Dto.AccountDto;
+import Services.PaymentService.Dto.AccountRequest;
+import Services.PaymentService.Dto.CreateWallet;
 import Services.PaymentService.Dto.WalletDetails;
 import Services.PaymentService.Enums.AccountType;
 import Services.PaymentService.Enums.WalletType;
@@ -21,35 +23,32 @@ import java.util.UUID;
 public class WalletRepository {
     @Autowired
     private final DataSource dataSource;
-    private static final Logger logger = LoggerFactory.getLogger(CardDetailsRepository.class);
+    private static final Logger logger = LoggerFactory.getLogger(WalletRepository.class);
     public WalletRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    // Method to begin a transaction
-    public void beginTransaction() {
-        try (Connection conn = dataSource.getConnection()) {
-            conn.setAutoCommit(false); // Start transaction
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to begin transaction", e);
-        }
-    }
+    public CreateWallet createNewWallet(CreateWallet transaction) {
+        String sql = "INSERT INTO payment_db.WALLET " +
+                "(Id, customerName,balance,walletType, AccountId) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
-    // Method to commit a transaction
-    public void commitTransaction() {
-        try (Connection conn = dataSource.getConnection()) {
-            conn.commit(); // Commit the transaction
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to commit transaction", e);
-        }
-    }
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-    // Method to roll back a transaction
-    public void rollbackTransaction() {
-        try (Connection conn = dataSource.getConnection()) {
-            conn.rollback(); // Rollback the transaction
+            String new_Id = UUID.randomUUID().toString();
+            pstmt.setString(1, new_Id);
+            pstmt.setString(2, transaction.getCustomerName());
+            pstmt.setString(3, transaction.getBalance().toString());
+            pstmt.setString(4, transaction.getWalletType().name());
+            pstmt.setString(5, transaction.getAccountId().toString());
+
+            pstmt.executeUpdate();
+
+            transaction.setId(UUID.fromString(new_Id));
+            return transaction;
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to rollback transaction", e);
+            throw new PaymentRepository.DatabaseException("Failed to create new Account", e);
         }
     }
 
@@ -90,6 +89,28 @@ public class WalletRepository {
         } catch (SQLException e) {
             logger.error("Failed to find wallet details with error: {}", e.getLocalizedMessage());
             throw new RuntimeException("Failed to find wallet details", e);
+        }
+        return null; // Return null if account not found
+    }
+
+    // Method to find an account by account number
+    public WalletDetails getWalletDetailsByAccountId(UUID accountId) {
+        logger.info("About to getWalletDetails with accountId: {}", accountId);
+
+        String sql = "SELECT * FROM payment_db.WALLET WHERE AccountId = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, accountId.toString());
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToAccount(rs); // Map ResultSet to Account object
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to find wallet details by account Id with error: {}", e.getLocalizedMessage());
+            throw new RuntimeException("Failed to find wallet details by account Id", e);
         }
         return null; // Return null if account not found
     }

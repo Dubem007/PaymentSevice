@@ -30,7 +30,7 @@ public class PaymentRepository {
 
     @Autowired
     private final DataSource dataSource;
-    private static final Logger logger = LoggerFactory.getLogger(CardDetailsRepository.class);
+    private static final Logger logger = LoggerFactory.getLogger(PaymentRepository.class);
 
 
     public PaymentRepository(DataSource dataSource) {

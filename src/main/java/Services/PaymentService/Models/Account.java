@@ -20,6 +20,7 @@ public class Account {
     private BigDecimal balance;
     private String bank;
     private AccountType accountType;
+    private UUID userId;
 
 
     // Getters and setters
@@ -29,6 +30,8 @@ public class Account {
     public void setAccountName(String accountName) { this.accountName = accountName; }
     public String getBank() { return bank; }
     public void setBank(String bank) { this.bank = bank; }
+    public UUID getUserId() { return userId; }
+    public void setUserId(UUID userId) { this.userId = userId; }
     public BigDecimal getBalance() { return balance; }
     public void setBalance(BigDecimal balance) { this.balance = balance; }
     public AccountType getAccountType() { return accountType; }

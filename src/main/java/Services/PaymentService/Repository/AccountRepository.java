@@ -1,6 +1,9 @@
 package Services.PaymentService.Repository;
 
 import Services.PaymentService.Dto.AccountDto;
+import Services.PaymentService.Dto.AccountRequest;
+import Services.PaymentService.Dto.UserDto;
+import Services.PaymentService.Dto.WalletDetails;
 import Services.PaymentService.Enums.AccountType;
 import Services.PaymentService.Models.Account;
 import org.slf4j.Logger;
@@ -20,36 +23,36 @@ import java.util.UUID;
 public class AccountRepository {
     @Autowired
     private final DataSource dataSource;
-    private static final Logger logger = LoggerFactory.getLogger(CardDetailsRepository.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserRepository.class);
 
     public AccountRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    // Method to begin a transaction
-    public void beginTransaction() {
-        try (Connection conn = dataSource.getConnection()) {
-            conn.setAutoCommit(false); // Start transaction
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to begin transaction", e);
-        }
-    }
+    public AccountRequest createNewAccount(AccountRequest transaction) {
+        String sql = "INSERT INTO payment_db.ACCOUNT " +
+                "(Id, accountNumber, accountName,balance,bank, accountType,userId) " +
+                "VALUES (?, ?, ?, ?, ?, ?,?)";
 
-    // Method to commit a transaction
-    public void commitTransaction() {
-        try (Connection conn = dataSource.getConnection()) {
-            conn.commit(); // Commit the transaction
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to commit transaction", e);
-        }
-    }
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-    // Method to roll back a transaction
-    public void rollbackTransaction() {
-        try (Connection conn = dataSource.getConnection()) {
-            conn.rollback(); // Rollback the transaction
+            String new_Id = UUID.randomUUID().toString();
+            pstmt.setString(1, new_Id);
+            pstmt.setString(2, transaction.getAccountNumber());
+            pstmt.setString(3, transaction.getAccountName());
+            pstmt.setString(4, transaction.getBalance().toString());
+            pstmt.setString(5, transaction.getBank());
+            pstmt.setString(6, transaction.getAccountType().name());
+            pstmt.setString(7, transaction.getUserId().toString());
+
+            pstmt.executeUpdate();
+
+            transaction.setId(UUID.fromString(new_Id));
+            return transaction;
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to rollback transaction", e);
+            logger.error("Failed to create new Account with error: {}", e.getLocalizedMessage());
+            throw new PaymentRepository.DatabaseException("Failed to create new Account", e);
         }
     }
 
@@ -72,6 +75,27 @@ public class AccountRepository {
         }
     }
 
+    // Method to find an account by account number
+    public AccountDto getAccountDetailsByUserId(UUID userId) {
+        logger.info("About to getAccountDetailsByUserId with accountId: {}", userId);
+
+        String sql = "SELECT * FROM payment_db.ACCOUNT WHERE userId = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, userId.toString());
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToAccount(rs); // Map ResultSet to Account object
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to find account details by user Id with error: {}", e.getLocalizedMessage());
+            throw new RuntimeException("Failed to find account details by user Id", e);
+        }
+        return null; // Return null if account not found
+    }
     // Method to find an account by account number
     public AccountDto findByAccountNumber(String accountNumber) {
         String sql = "SELECT * FROM payment_db.ACCOUNT WHERE accountNumber = ?";
