@@ -121,6 +121,7 @@ public class WalletRepository {
         String customerName = rs.getString("customerName");
         BigDecimal balance = rs.getBigDecimal("balance");
         WalletType walletType = WalletType.valueOf(rs.getString("walletType"));
-        return new WalletDetails(Id,customerName, balance,walletType); // Assuming Account constructor takes accountNumber and balance
+        UUID accountId = UUID.fromString(rs.getString("AccountId"));
+        return new WalletDetails(Id,customerName, balance,walletType,accountId); // Assuming Account constructor takes accountNumber and balance
     }
 }

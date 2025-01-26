@@ -65,7 +65,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.warn("Failed to extract username from token.");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No username retrieved from token");
             }
-        } else {
+        } else if(request.getServletPath().contains("/users"))
+        {
+            logger.warn("/users request is permitted");
+
+        }else
+        {
             logger.warn("No token provided.");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token provided");
         }

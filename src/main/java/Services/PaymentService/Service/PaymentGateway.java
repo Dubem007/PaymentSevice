@@ -102,10 +102,32 @@ public class PaymentGateway {
             boolean updateSuccess = updateCardBalance(cardDetails, desti_cardDetails, request.getAmount(),request.getTransactionType());
             logger.info("updateCardBalance with response as : {}", updateSuccess);
 
+            logger.info("About to get source account details.....");
+            AccountDto account_cardDetails = accountRepository.getAccountDetailsById(cardDetails.accountId());
+            logger.info("Successfully retrieved source account details with card number : {}", cardDetails.cardNumber());
+
+            if (account_cardDetails.accountNumber() == null) {
+                return new PaymentResult(false, "Card not found");
+            }
+
+            logger.info("About to get destination account details.....");
+            AccountDto account_destination_cardDetails = accountRepository.getAccountDetailsById(desti_cardDetails.accountId());
+            logger.info("Successfully retrieved destination account details with card number : {}", desti_cardDetails.cardNumber());
+
+            if (account_destination_cardDetails.accountNumber() == null) {
+                return new PaymentResult(false, "Card not found");
+            }
+            logger.info("About to performTransfer on both accounts for both cards...");
+            boolean transferSuccess = performTransfer(account_cardDetails, account_destination_cardDetails, request.getAmount());
+            logger.info("Concluded processBankTransfer for both cards...");
+
+            if (!transferSuccess) {
+                return new PaymentResult(false, "Failed to process card account payments");
+            }
             if (updateSuccess) {
                 return new PaymentResult(true, "Successfully processed card payment Transaction "); // Payment successful
             } else {
-                return new PaymentResult(false, "Failed to update balance");
+                return new PaymentResult(false, "Failed to process card payments");
             }
         } catch (Exception e) {
             // Log the exception and return an error response
@@ -157,7 +179,7 @@ public class PaymentGateway {
             // Perform the transfer as a single transaction
             logger.info("About to performTransfer on both accounts...");
             boolean transferSuccess = performTransfer(sourceAccount, destinationAccount, request.getAmount());
-            logger.info("About to start processBankTransfer...");
+            logger.info("Concluded processBankTransfer...");
 
             if (transferSuccess) {
                 return new PaymentResult(true, "Successfully processed bank transfer Transaction ");
@@ -208,6 +230,29 @@ public class PaymentGateway {
                 BigDecimal newDestinationBalance = destinationWallet.balance().add(request.getAmount());
                 walletRepository.update(request.getWalletDetails().destinationWalletId(), newDestinationBalance);
                 logger.info("Successfully updated destination wallet balance...");
+
+                logger.info("About to get source account details for wallet.....");
+                AccountDto account_walletDetails = accountRepository.getAccountDetailsById(sourceWallet.AccountId());
+                logger.info("Successfully retrieved source account details with wallet Id : {}", sourceWallet.Id());
+
+                if (account_walletDetails.accountNumber() == null) {
+                    return new PaymentResult(false, "Card not found");
+                }
+
+                logger.info("About to get destination account details for wallet.....");
+                AccountDto account_destination_walletDetails = accountRepository.getAccountDetailsById(destinationWallet.AccountId());
+                logger.info("Successfully retrieved destination account details with wallet Id : {}", destinationWallet.Id());
+
+                if (account_destination_walletDetails.accountNumber() == null) {
+                    return new PaymentResult(false, "Card not found");
+                }
+                logger.info("About to performTransfer on both accounts for both wallets...");
+                boolean transferSuccess = performTransfer(account_walletDetails, account_destination_walletDetails, request.getAmount());
+                logger.info("Concluded processBankTransfer for both wallets...");
+
+                if (!transferSuccess) {
+                    return new PaymentResult(false, "Failed to process card account payments");
+                }
                 return new PaymentResult(true, "Successfully processed wallet Transaction ");  // Success
             }
             return new PaymentResult(false, "Invalid wallet details");

@@ -96,6 +96,28 @@ public class AccountRepository {
         }
         return null; // Return null if account not found
     }
+
+    // Method to find an account by account number
+    public AccountDto getAccountDetailsById(UUID accountId) {
+        logger.info("About to getAccountDetailsById with accountId: {}", accountId);
+
+        String sql = "SELECT * FROM payment_db.ACCOUNT WHERE Id = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, accountId.toString());
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToAccount(rs); // Map ResultSet to Account object
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to find account details by Id with error: {}", e.getLocalizedMessage());
+            throw new RuntimeException("Failed to find account details by Id", e);
+        }
+        return null; // Return null if account not found
+    }
     // Method to find an account by account number
     public AccountDto findByAccountNumber(String accountNumber) {
         String sql = "SELECT * FROM payment_db.ACCOUNT WHERE accountNumber = ?";

@@ -80,6 +80,7 @@ public class CardDetailsRepository {
            String cvv = rs.getString("cvv");
            String expiryDate = rs.getString("expiryDate");
            CardType cardType = CardType.valueOf(rs.getString("cardType"));
+           UUID accountid = UUID.fromString(rs.getString("AccountId"));
 
            // Creating and returning a TransactionDto object
            return new CardDetailsDto(
@@ -89,7 +90,8 @@ public class CardDetailsRepository {
                    balance,
                    cvv,
                    expiryDate,
-                   cardType
+                   cardType,
+                   accountid
            );
        } catch (SQLException e) {
         logger.error("Failed to map cardDetails: {}", e.getLocalizedMessage());

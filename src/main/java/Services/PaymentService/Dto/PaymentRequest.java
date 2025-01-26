@@ -12,14 +12,13 @@ import java.math.BigDecimal;
 
 public class PaymentRequest {
     @NotNull()
-    @NotEmpty(message = "amount cannot be empty")
     @Positive(message = "amount must be positive")
     private final BigDecimal amount;
     @NotEmpty(message = "currency cannot be empty")
     private final String currency;
-    @NotEmpty(message = "transactionType description cannot be empty")
+    @NotNull()
     private final TransactionType transactionType;
-    @NotEmpty(message = "paymentMethod cannot be empty")
+    @NotNull()
     private final PaymentMethod paymentMethod;
     private final CardRequest cardDetails;
     private final BankPaymentRequest bankDetails;
