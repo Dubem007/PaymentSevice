@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -38,6 +39,7 @@ public class PaymentService {
         this.securityManager = securityManager;
     }
 
+    @PreAuthorize("hasRole('ADMIN_USER')")
     public PaymentResult processPayment(PaymentRequest request) throws JsonProcessingException {
         // Validate payment request
         ObjectMapper objectMapper = new ObjectMapper();

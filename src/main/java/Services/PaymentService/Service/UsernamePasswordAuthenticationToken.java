@@ -1,7 +1,6 @@
 package Services.PaymentService.Service;
 
 import Services.PaymentService.Service.Interface.GrantedAuthority;
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -40,6 +39,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 
     @Override
     public String getName() {
-        return "";
+        // Return the username (or principal) for the token
+        return principal != null ? principal.toString() : "";
     }
 }

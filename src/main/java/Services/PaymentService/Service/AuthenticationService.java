@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class AuthenticationService {
@@ -154,8 +156,9 @@ public class AuthenticationService {
               logger.info("User does not have any wallet created....");
               return new GenResult(false, "User does not have any wallet created", null);
           }
+          List<String> roles = Collections.singletonList("ADMIN_USER");
           // Generate JWT
-          String token = tokenProvider.generateToken(user_exists.Id(), accountUser.accountNumber(),walletUser.Id(), user_exists.emailAddress());
+          String token = tokenProvider.generateToken(user_exists.Id(), accountUser.accountNumber(),walletUser.Id(), user_exists.emailAddress(),roles);
           if(token == null)
           {
               logger.info("Failed to login User and generate token ....");
