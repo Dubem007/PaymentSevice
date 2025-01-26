@@ -69,6 +69,28 @@ public class CardDetailsRepository {
         }
     }
 
+    public CardDetailsDto getCardDetailsByAccountId(UUID accountId) {
+        logger.info("About to getCardDetails for cardNumber by accountId: {}", accountId);
+
+        String sql = "SELECT * FROM payment_db.CARD_DETAILS WHERE AccountId = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, accountId.toString());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToTransaction(rs);
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            logger.error("Failed to find cardDetails by accountId: {}", e.getLocalizedMessage());
+            throw new PaymentRepository.DatabaseException("Failed to find cardDetails by by accountId", e);
+        }
+    }
+
     private CardDetailsDto mapResultSetToTransaction(ResultSet rs){
 
        try{
