@@ -14,10 +14,11 @@ public class DataSourceConfig {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         String host = System.getenv().getOrDefault("MYSQL_HOST", "localhost");
         dataSource.setUrl(String.format("jdbc:mysql://%s:3306/payment_db", host));
-        //dataSource.setUrl("jdbc:mysql://${MYSQL_HOST:localhost}:3306/payment_db");
+        // dataSource.setUrl("jdbc:mysql://${MYSQL_HOST:localhost}:3306/payment_db");
         dataSource.setUsername("root");
         dataSource.setPassword("password");
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        // dataSource.set("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         return dataSource;
     }
 }

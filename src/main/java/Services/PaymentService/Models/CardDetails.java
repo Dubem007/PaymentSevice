@@ -13,7 +13,7 @@ import java.util.UUID;
 @Data
 @Table(name = "CARD_DETAILS")
 public class CardDetails {
-    @jakarta.persistence.Id
+    @Id
     private UUID Id;
     private String cardNumber; // Primary key
     private String cardHolderName;

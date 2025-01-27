@@ -30,7 +30,6 @@ public class SecurityConfiguration {
         logger.info("About to start authentication...");
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
                 // Add the filter before authentication is required
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 

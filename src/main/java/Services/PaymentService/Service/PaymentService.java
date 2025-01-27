@@ -117,6 +117,7 @@ public class PaymentService {
         return payRepository.save(transaction);
     }
 
+
     private TransactionDto createWalletTransaction(PaymentRequest request) {
         PaymentMethod resp = request.getPaymentMethod();
 
@@ -137,17 +138,17 @@ public class PaymentService {
         return payRepository.save(transaction);
     }
 
-    private PaymentResult processCreditCardPayment(PaymentRequest request) {
+    public PaymentResult processCreditCardPayment(PaymentRequest request) {
         // Implement credit card payment logic
         return paymentGateway.processCreditCardPayment(request);
     }
 
-    private PaymentResult processBankTransfer(PaymentRequest request) {
+    public PaymentResult processBankTransfer(PaymentRequest request) {
         // Implement bank transfer logic
         return paymentGateway.processBankTransfer(request);
     }
 
-    private PaymentResult processDigitalWalletPayment(PaymentRequest request) {
+    public PaymentResult processDigitalWalletPayment(PaymentRequest request) {
         // Implement digital wallet payment logic
         return paymentGateway.processDigitalWalletPayment(request);
     }
