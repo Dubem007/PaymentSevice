@@ -7,10 +7,10 @@ import java.util.UUID;
 public class LoginResponse {
     private String username;
     private String access_token;
-    private LocalDateTime login_time;
+    private Timestamp login_time;
 
     // Constructor
-    public LoginResponse(String username, String access_token, LocalDateTime login_time) {
+    public LoginResponse(String username, String access_token, Timestamp login_time) {
 
         this.username = username;
         this.access_token = access_token;
@@ -25,7 +25,7 @@ public class LoginResponse {
         return access_token;
     }
 
-    public LocalDateTime getLoginTime() {
+    public Timestamp getLoginTime() {
         return login_time;
     }
 
@@ -37,7 +37,7 @@ public class LoginResponse {
         this.access_token = access_token;
     }
 
-    public void setLoginTime(LocalDateTime login_time) {
+    public void setLoginTime(Timestamp login_time) {
         this.login_time = login_time;
     }
 

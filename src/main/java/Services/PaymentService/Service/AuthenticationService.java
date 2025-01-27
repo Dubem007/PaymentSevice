@@ -165,7 +165,7 @@ public class AuthenticationService {
               return new GenResult(false, "Failed to login User and generate token", null);
           }
           LoginResponse resp = new LoginResponse(
-                  user_exists.emailAddress(),token, LocalDateTime.now()
+                  user_exists.emailAddress(),token,  Timestamp.valueOf(LocalDateTime.now())
           );
           return new GenResult(true, "User successful login", resp);
 
